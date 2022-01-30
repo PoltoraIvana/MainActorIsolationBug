@@ -7,14 +7,9 @@
 
 import UIKit
 
-protocol ViewInternal: AnyObject {
-  @MainActor func doSmthOnMain()
-}
-
 class ViewController: UIViewController {
   
-  private let presenter: PresenterProtocol
-  private let workQueue = DispatchQueue(label: "111")
+  private let presenter: Presenter
   
   required init?(coder: NSCoder) {
     let presenter = Presenter()
@@ -27,15 +22,12 @@ class ViewController: UIViewController {
     super.viewDidLoad()
    
     print("did load")
-    workQueue.asyncAfter(deadline: .now() + 3) {
-      print("do smth")
-      self.presenter.doSmth()
-    }
+    presenter.doSmth()
   }
 
 }
 
-extension ViewController: ViewInternal {
+extension ViewController {
   
   @MainActor
   func doSmthOnMain() {
@@ -44,13 +36,9 @@ extension ViewController: ViewInternal {
   
 }
 
-protocol PresenterProtocol: AnyObject {
-  func doSmth()
-}
-
-final class Presenter: PresenterProtocol {
+final class Presenter {
   
-  @MainActor weak var view: ViewInternal?
+  @MainActor weak var view: ViewController?
   
   func doSmth() {
     Task {
